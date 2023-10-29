@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pull_requests', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('github_id');
             $table->integer('number');
             $table->string('repository', 100)->index();
             $table->string('title');

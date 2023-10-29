@@ -175,7 +175,9 @@ return [
         App\Providers\Github\GithubServiceProvider::class,
         App\Providers\Github\GithubRepositoryProvider::class,
         App\Providers\PullRequest\PullRequestServiceProvider::class,
+        App\Providers\PullRequest\PullRequestRepositoryProvider::class,
         App\Providers\ApproveRules\ApproveRulesServiceProvider::class,
+        
         
     ])->toArray(),
 
