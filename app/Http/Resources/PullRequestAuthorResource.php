@@ -16,8 +16,8 @@ class PullRequestAuthorResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'name' => Arr::get($this, 'user.login'),
-            'avatar' => Arr::get($this, 'user.avatar_url'),
+            'name' => Arr::get($this, 'data.user.login'),
+            'avatar' => Arr::get($this, 'data.user.avatar_url'),
         ];
     }
 }

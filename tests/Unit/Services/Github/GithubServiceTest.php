@@ -25,7 +25,7 @@ class GithubServiceTest extends TestCase
      */
     public function on_get_repositories_should_return_an_array(): void
     {
-        $repositories = $this->githubService->getPullRequest('service-facial-auth-api');
+        $repositories = $this->githubService->getPullRequests('service-facial-auth-api');
         
         dd($repositories);
     }

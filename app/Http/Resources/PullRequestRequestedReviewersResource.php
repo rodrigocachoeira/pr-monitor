@@ -16,11 +16,6 @@ class PullRequestRequestedReviewersResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return collect(Arr::get($this, 'requestedReviewers'))->map(function ($consultant) {
-            return [
-                'name' => Arr::get($consultant, 'name'),
-                'slug' => Arr::get($consultant, 'slug'),
-            ];
-        })->toArray();
+        return Arr::get($this, 'requiredReviewers');
     }
 }

@@ -19,7 +19,7 @@ class GithubRepositoryApi implements GithubRepositoryContract
     {
         $perPage = config('github.components.repos.per_page');
         $owner = config('github.owner');
-        $url = implode(['/repos/', $owner, '/', $repositoryName, '/pulls?per_page=', $perPage, '&state=open']);
+        $url = implode(['/repos/', $owner, '/', $repositoryName, '/pulls?per_page=', $perPage]);
 
         return $this->getPullRequestsByPagination($url);
     }

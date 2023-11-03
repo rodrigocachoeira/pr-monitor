@@ -6,5 +6,5 @@ use Illuminate\Support\Collection;
 
 interface PullRequestServiceContract
 {
-    public function getMyPullRequests(array $repositories): Collection;
+    public function getMyPullRequests(string $user, array $repositories): Collection;
 }

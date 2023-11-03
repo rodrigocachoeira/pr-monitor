@@ -17,27 +17,52 @@ class PullRequestService implements PullRequestServiceContract
         private ApproveRulesServiceContract $approveRulesService
     ){}
     
-    public function getMyPullRequests(array $repositories): Collection
+    public function getMyPullRequests(string $user, array $repositories): Collection
     {
         $key = config('cache.keys.my_personal_pull_requests');
         $expirationTime = config('cache.expiration_time.six_months');
         
-        $pullRequests = Cache::remember($key, $expirationTime, function () {
-            return $this->githubService->getPullRequest(RepositoryEnum::SERVICE_FACIAL_AUTH_API);    
+        $repositoryPullRequests = Cache::remember($key, $expirationTime, function () use ($user, $repositories) {
+            return $this->getPullRequestsOfUser($user, $repositories);
         });
         
-        $pullRequests->transform(function ($pullRequest) {
-            $reviewers = collect($pullRequest['approves'])->pluck('author');
-            $requestedReviewers = collect($pullRequest['requestedReviewers'])->pluck('slug');
-            $changedFiles = $pullRequest['files'];
+        return $this->applyApproveRules($repositoryPullRequests);
+    }
+    
+    private function applyApproveRules(Collection $repositoryPullRequests): Collection
+    {
+        return $repositoryPullRequests->map(function ($repositoryPullRequest) {
+            $repository = $repositoryPullRequest['repository'];
+            $pullRequests = $repositoryPullRequest['pullRequests'];
 
-            $pullRequest['requiredReviewers'] = $this->approveRulesService->getApproveValidation(
-                new AndromedaRules(), $requestedReviewers->toArray(), $reviewers->toArray(), $changedFiles->toarray()
-            );
+            $pullRequests->transform(function ($pullRequest) {
+                $reviewers = collect($pullRequest['approves'])->pluck('author');
+                $requestedReviewers = collect($pullRequest['requestedReviewers'])->pluck('slug');
+                $changedFiles = $pullRequest['files'];
+
+                $pullRequest['requiredReviewers'] = $this->approveRulesService->getApproveValidation(
+                    new AndromedaRules(), $requestedReviewers->toArray(), $reviewers->toArray(), $changedFiles->toarray()
+                );
+
+                return $pullRequest;
+            });
             
-            return $pullRequest;
+            return [
+                'repository' => $repository,
+                'pullRequests' => $pullRequests,
+            ];
         });
-        
-        return $pullRequests;
+    }
+    
+    private function getPullRequestsOfUser(string $user, array $repositories): Collection
+    {
+        return collect($repositories)->map(function (RepositoryEnum $repository) use ($user) {
+            $pullRequests = $this->githubService->getPullRequests($user, $repository);
+            
+            return [
+                'repository' => $repository,
+                'pullRequests' => $pullRequests,
+            ];
+        });
     }
 }
